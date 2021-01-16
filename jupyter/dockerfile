@@ -1,0 +1,14 @@
+# docker run -p 8888:8888 jupyter/scipy-notebook:2c80cf3537ca
+# pip install bash_kernel
+# python -m bash_kernel.install
+
+
+FROM jupyter/scipy-notebook
+RUN  pip install bash_kernel
+RUN  python -m bash_kernel.install
+RUN  rmdir work
+CMD  cd ~; git clone ${git_repo}; jupyter notebook
+
+
+
+

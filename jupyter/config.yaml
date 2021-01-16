@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyter
+  annotations:
+    metallb.universe.tf/address-pool: default
+spec:
+  ports:
+  - port: 8888
+    name: web
+    targetPort: 8888
+  selector:
+    app: jupyter
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-deployment
+  labels:
+    app: jupyter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter
+  template:
+    metadata:
+      labels:
+        app: jupyter
+    spec:
+      containers:
+      - name: jupyter
+        image:  lukasball/my-jupyter-container:0.2
+        ports:
+        - containerPort: 8888
+        env:
+        - name: git_repo
+          value: https://github.com/lukasb27/my-jupyter-notebooks
+      nodeSelector:
+        kubernetes.io/arch: amd64
