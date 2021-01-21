@@ -32,11 +32,25 @@ spec:
     spec:
       containers:
       - name: jupyter
-        image:  lukasball/my-jupyter-container:0.2
+        image:  lukasball/my-jupyter-container:0.6
         ports:
         - containerPort: 8888
         env:
         - name: git_repo
-          value: https://github.com/lukasb27/my-jupyter-notebooks
+          value: git@github.com:lukasb27/my-jupyter-notebooks.git
+        volumeMounts:
+        - name: my-ssh-key
+          mountPath: "/var/my-app-secrets"
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - cp /var/my-app-secrets/id_rsa ~/.ssh/id_rsa; chmod 600 ~/.ssh/id_rsa
       nodeSelector:
         kubernetes.io/arch: amd64
+      volumes:
+      - name: my-ssh-key
+        secret:
+          secretName: my-ssh-key

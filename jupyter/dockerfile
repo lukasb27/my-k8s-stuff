@@ -4,10 +4,24 @@
 
 
 FROM jupyter/scipy-notebook
+USER root
+RUN  sudo apt-get update
+RUN  sudo apt-get install ssh-client -y
+RUN  sudo apt-get install cron -y
+COPY set_cron.sh /home/jovyan/set_cron.sh
+RUN  chmod +x ~/set_cron.sh
+
+
+USER $NB_USER
+RUN  mkdir /home/jovyan/.ssh
+RUN ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 RUN  pip install bash_kernel
+RUN  pip install gitpython
+COPY check_git_status.py /home/jovyan/check_git_status.py 
+RUN  ~/set_cron.sh 
 RUN  python -m bash_kernel.install
 RUN  rmdir work
-CMD  cd ~; git clone ${git_repo}; jupyter notebook
+CMD  cd ~; git clone ${git_repo}; cd $(ls -d -1 */ |sed -n '1p'); jupyter notebook
 
 
 
